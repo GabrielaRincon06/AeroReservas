@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AeroReserva – Reserva tu vuelo de forma rápida, segura y moderna. Tu próximo destino comienza aquí." />
+  <meta name="keywords" content="aeropuerto, reservas, vuelos, AeroReserva, viajes" />
+  <meta name="author" content="AeroReserva" />
+  <title>AeroReserva – Tu próximo destino comienza aquí</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ========== ENCABEZADO ========== -->
+  <header class="header" role="banner">
+    <div class="header__overlay"></div>
+    <nav class="navbar" role="navigation" aria-label="Navegación principal">
+      <div class="navbar__logo">
+        <span class="navbar__icon" aria-hidden="true">✈️</span>
+        <span class="navbar__brand">AeroReserva</span>
+      </div>
+      <div class="navbar__links">
+        <a href="#reservar" class="navbar__link">Reservar</a>
+        <a href="#mis-reservas" class="navbar__link">Mis Reservas</a>
+        <a href="#footer" class="navbar__link">Contacto</a>
+      </div>
+      <!-- Indicador de estado de conexión con n8n -->
+      <div class="navbar__status" id="navbar-status" aria-live="polite" title="Haz clic para cambiar la URL del Webhook de n8n" onclick="cambiarWebhookUrl()" style="cursor: pointer;">
+        <span class="status-dot status-dot--connecting" id="status-dot" aria-hidden="true"></span>
+        <span class="status-text" id="status-text">Conectando...</span>
+      </div>
+    </nav>
+    <div class="hero" role="main">
+      <div class="hero__content">
+        <div class="hero__badge">
+          <span>🌍</span> Más de 200 destinos disponibles
+        </div>
+        <h1 class="hero__title">
+          Tu próximo destino<br />
+          <span class="hero__title--accent">comienza aquí.</span>
+        </h1>
+        <p class="hero__subtitle">
+          Reserva tu vuelo en minutos. Seguro, rápido y confiable.
+        </p>
+        <a href="#reservar" class="hero__cta" aria-label="Ir al formulario de reserva">
+          Reservar ahora <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="hero__visual" aria-hidden="true">
+        <div class="plane-animation">
+          <span class="plane-icon">✈</span>
+          <div class="plane-trail"></div>
+        </div>
+        <div class="hero__cloud hero__cloud--1">☁️</div>
+        <div class="hero__cloud hero__cloud--2">☁️</div>
+        <div class="hero__cloud hero__cloud--3">☁️</div>
+      </div>
+    </div>
+    <!-- Contador de reservas en el hero -->
+    <div class="hero__stats" aria-live="polite">
+      <div class="stat-card">
+        <span class="stat-card__icon" aria-hidden="true">📋</span>
+        <div>
+          <p class="stat-card__number" id="contador-hero">0</p>
+          <p class="stat-card__label">Reservas registradas</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__icon" aria-hidden="true">🌐</span>
+        <div>
+          <p class="stat-card__number">200+</p>
+          <p class="stat-card__label">Destinos disponibles</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__icon" aria-hidden="true">⭐</span>
+        <div>
+          <p class="stat-card__number">4.9</p>
+          <p class="stat-card__label">Calificación promedio</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== FORMULARIO DE RESERVA ========== -->
+  <section id="reservar" class="section section--form" aria-labelledby="form-title">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__tag">✈️ Nueva reserva</span>
+        <h2 class="section__title" id="form-title">Formulario de Reserva</h2>
+        <p class="section__subtitle">Completa los campos para registrar tu vuelo</p>
+      </div>
+
+      <div class="form-card">
+        <form id="form-reserva" class="form" novalidate aria-label="Formulario de reserva de vuelo">
+
+          <!-- Fila 1: Nombre y Correo -->
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="nombre">
+                <span class="form__label-icon" aria-hidden="true">👤</span>
+                Nombre completo <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                class="form__input"
+                placeholder="Ej: María García López"
+                autocomplete="name"
+                aria-required="true"
+                aria-describedby="nombre-error"
+              />
+              <span class="form__error" id="nombre-error" role="alert" aria-live="polite"></span>
+            </div>
+
+            <div class="form__group">
+              <label class="form__label" for="correo">
+                <span class="form__label-icon" aria-hidden="true">📧</span>
+                Correo electrónico <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="email"
+                id="correo"
+                name="correo"
+                class="form__input"
+                placeholder="Ej: maria@correo.com"
+                autocomplete="email"
+                aria-required="true"
+                aria-describedby="correo-error"
+              />
+              <span class="form__error" id="correo-error" role="alert" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Fila 2: Teléfono -->
+          <div class="form__row form__row--single">
+            <div class="form__group">
+              <label class="form__label" for="telefono">
+                <span class="form__label-icon" aria-hidden="true">📱</span>
+                Teléfono <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="tel"
+                id="telefono"
+                name="telefono"
+                class="form__input"
+                placeholder="Ej: +57 300 123 4567"
+                autocomplete="tel"
+                aria-required="true"
+                aria-describedby="telefono-error"
+              />
+              <span class="form__error" id="telefono-error" role="alert" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Separador de sección -->
+          <div class="form__divider">
+            <span>🛫 Información del vuelo</span>
+          </div>
+
+          <!-- Fila 3: Origen y Destino -->
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="origen">
+                <span class="form__label-icon" aria-hidden="true">🛫</span>
+                Ciudad de origen <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="text"
+                id="origen"
+                name="origen"
+                class="form__input"
+                placeholder="Ej: Bogotá"
+                autocomplete="off"
+                aria-required="true"
+                aria-describedby="origen-error"
+              />
+              <span class="form__error" id="origen-error" role="alert" aria-live="polite"></span>
+            </div>
+
+            <div class="form__group">
+              <label class="form__label" for="destino">
+                <span class="form__label-icon" aria-hidden="true">🛬</span>
+                Ciudad de destino <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="text"
+                id="destino"
+                name="destino"
+                class="form__input"
+                placeholder="Ej: Medellín"
+                autocomplete="off"
+                aria-required="true"
+                aria-describedby="destino-error"
+              />
+              <span class="form__error" id="destino-error" role="alert" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Fila 4: Fecha y Hora del vuelo -->
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="fecha-vuelo">
+                <span class="form__label-icon" aria-hidden="true">📅</span>
+                Fecha del vuelo <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="date"
+                id="fecha-vuelo"
+                name="fecha-vuelo"
+                class="form__input"
+                aria-required="true"
+                aria-describedby="fecha-vuelo-error"
+              />
+              <span class="form__error" id="fecha-vuelo-error" role="alert" aria-live="polite"></span>
+            </div>
+
+            <div class="form__group">
+              <label class="form__label" for="hora-vuelo">
+                <span class="form__label-icon" aria-hidden="true">🕐</span>
+                Hora del vuelo <span class="form__required" aria-label="campo obligatorio">*</span>
+              </label>
+              <input
+                type="time"
+                id="hora-vuelo"
+                name="hora-vuelo"
+                class="form__input"
+                aria-required="true"
+                aria-describedby="hora-vuelo-error"
+              />
+              <span class="form__error" id="hora-vuelo-error" role="alert" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Fila 5: Checkbox viaje de regreso -->
+          <div class="form__group form__group--checkbox">
+            <label class="form__checkbox-label" for="viaje-regreso">
+              <input
+                type="checkbox"
+                id="viaje-regreso"
+                name="viaje-regreso"
+                class="form__checkbox"
+                aria-describedby="viaje-regreso-desc"
+                aria-controls="grupo-fecha-regreso"
+              />
+              <span class="form__checkbox-custom" aria-hidden="true"></span>
+              <span>
+                <strong>🔄 Necesito viaje de regreso</strong>
+                <small id="viaje-regreso-desc" class="form__checkbox-hint">Marcar si deseas incluir vuelo de vuelta</small>
+              </span>
+            </label>
+          </div>
+
+          <!-- Campo condicional: Fecha de regreso -->
+          <div class="form__group form__group--conditional" id="grupo-fecha-regreso" aria-hidden="true" hidden>
+            <label class="form__label" for="fecha-regreso">
+              <span class="form__label-icon" aria-hidden="true">🔄</span>
+              Fecha tentativa de regreso <span class="form__required" aria-label="campo obligatorio">*</span>
+            </label>
+            <input
+              type="date"
+              id="fecha-regreso"
+              name="fecha-regreso"
+              class="form__input"
+              aria-describedby="fecha-regreso-error"
+            />
+            <span class="form__error" id="fecha-regreso-error" role="alert" aria-live="polite"></span>
+          </div>
+
+          <!-- Botón de envío -->
+          <div class="form__actions">
+            <button type="submit" class="btn btn--primary btn--large" id="btn-reservar">
+              <span class="btn__icon" aria-hidden="true">✈️</span>
+              Reservar Vuelo
+            </button>
+            <button type="button" class="btn btn--ghost" id="btn-limpiar" onclick="limpiarFormulario()">
+              <span class="btn__icon" aria-hidden="true">🗑️</span>
+              Limpiar
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== LISTA DE RESERVAS ========== -->
+  <section id="mis-reservas" class="section section--reservas" aria-labelledby="reservas-title">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__tag">📋 Historial</span>
+        <h2 class="section__title" id="reservas-title">Mis Reservas</h2>
+        <p class="section__subtitle">
+          Reservas registradas: <strong id="contador-reservas" aria-live="polite">0</strong>
+        </p>
+      </div>
+
+      <!-- Estado vacío -->
+      <div id="estado-vacio" class="empty-state" role="status" aria-label="No hay reservas registradas">
+        <div class="empty-state__icon" aria-hidden="true">🛫</div>
+        <h3 class="empty-state__title">¡Aún no tienes reservas!</h3>
+        <p class="empty-state__text">Completa el formulario de arriba para registrar tu primer vuelo.</p>
+        <a href="#reservar" class="btn btn--primary">Hacer mi primera reserva</a>
+      </div>
+
+      <!-- Contenedor de tarjetas -->
+      <div id="lista-reservas" class="reservas-grid" role="list" aria-label="Lista de reservas"></div>
+    </div>
+  </section>
+
+  <!-- ========== TOAST / NOTIFICACIONES ========== -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ========== MODAL DE CONFIRMACIÓN ========== -->
+  <div id="modal-confirmacion" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc" hidden>
+    <div class="modal__backdrop" id="modal-backdrop"></div>
+    <div class="modal__content">
+      <div class="modal__icon" aria-hidden="true">⚠️</div>
+      <h3 class="modal__title" id="modal-title">¿Eliminar reserva?</h3>
+      <p class="modal__desc" id="modal-desc">Esta acción no se puede deshacer. ¿Estás seguro de que deseas eliminar esta reserva?</p>
+      <div class="modal__actions">
+        <button class="btn btn--danger" id="btn-confirmar-eliminar">Sí, eliminar</button>
+        <button class="btn btn--ghost" id="btn-cancelar-eliminar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer id="footer" class="footer" role="contentinfo">
+    <div class="footer__top">
+      <div class="container footer__grid">
+        <div class="footer__brand">
+          <div class="footer__logo">
+            <span aria-hidden="true">✈️</span> AeroReserva
+          </div>
+          <p class="footer__tagline">Tu próximo destino comienza aquí.</p>
+          <p class="footer__desc">
+            Plataforma líder en reservas de vuelos. Conectamos viajeros con destinos
+            alrededor del mundo de forma segura y eficiente.
+          </p>
+          <div class="footer__socials" aria-label="Redes sociales">
+            <a href="#" class="footer__social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="footer__social-link" aria-label="Twitter">🐦</a>
+            <a href="#" class="footer__social-link" aria-label="Instagram">📸</a>
+            <a href="#" class="footer__social-link" aria-label="LinkedIn">💼</a>
+          </div>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Servicios</h4>
+          <ul class="footer__list">
+            <li><a href="#" class="footer__link">✈️ Vuelos nacionales</a></li>
+            <li><a href="#" class="footer__link">🌍 Vuelos internacionales</a></li>
+            <li><a href="#" class="footer__link">🔄 Vuelos de regreso</a></li>
+            <li><a href="#" class="footer__link">💼 Equipaje extra</a></li>
+            <li><a href="#" class="footer__link">🏨 Hotel + vuelo</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Soporte</h4>
+          <ul class="footer__list">
+            <li><a href="#" class="footer__link">❓ Preguntas frecuentes</a></li>
+            <li><a href="#" class="footer__link">📞 Centro de ayuda</a></li>
+            <li><a href="#" class="footer__link">🔒 Política de privacidad</a></li>
+            <li><a href="#" class="footer__link">📄 Términos y condiciones</a></li>
+            <li><a href="#" class="footer__link">♿ Accesibilidad</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Contacto</h4>
+          <ul class="footer__list footer__list--contact">
+            <li><span aria-hidden="true">📍</span> Av. El Dorado No. 103-15, Bogotá</li>
+            <li><span aria-hidden="true">📞</span> +57 (1) 266-2000</li>
+            <li><span aria-hidden="true">📧</span> info@aeroreserva.co</li>
+            <li><span aria-hidden="true">🕐</span> Lun–Dom: 24 horas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <p>&copy; 2026 AeroReserva. Todos los derechos reservados.</p>
+        <p>Diseñado con ❤️ para viajeros del mundo</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

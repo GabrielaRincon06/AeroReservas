@@ -1,0 +1,542 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aeroreserva",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "9d84d824-c9ce-486a-bb2d-837bc79a443f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        2256
+      ],
+      "webhookId": "aeroreserva-webhook-id"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $('Webhook').item.json.body.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "GET_ALL"
+            },
+            {
+              "value2": "CREATE",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "id": "17944b94-b54a-4282-b247-3f463cb393a2",
+      "name": "Router por Acción",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        2224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, nombre, correo, telefono, origen, destino, fecha_vuelo AS \"fechaVuelo\", hora_vuelo AS \"horaVuelo\", viaje_solo AS \"viajeSolo\", fecha_regreso AS \"fechaRegreso\", estado FROM reservas ORDER BY fecha_creacion DESC;",
+        "options": {}
+      },
+      "id": "90b73ea3-ddc1-4da0-ab4c-5fe3b425b55a",
+      "name": "PostgreSQL Consultar",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        2048
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "8pKuaXqXBnzxFNT3",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "name"
+        },
+        "table": {
+          "__rl": true,
+          "value": "reservas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Webhook').item.json.body.data.id }}",
+            "nombre": "={{ $('Webhook').item.json.body.data.nombre }}",
+            "correo": "={{ $('Webhook').item.json.body.data.correo }}",
+            "telefono": "={{ $('Webhook').item.json.body.data.telefono }}",
+            "origen": "={{ $('Webhook').item.json.body.data.origen }}",
+            "destino": "={{ $('Webhook').item.json.body.data.destino }}",
+            "fecha_vuelo": "={{ $('Webhook').item.json.body.data.fechaVuelo }}",
+            "hora_vuelo": "={{ $('Webhook').item.json.body.data.horaVuelo }}",
+            "viaje_solo": "={{ $('Webhook').item.json.body.data.viajeSolo }}",
+            "fecha_regreso": "={{ $('Webhook').item.json.body.data.fechaRegreso }}",
+            "estado": "={{ $('Webhook').item.json.body.data.estado }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": true,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "origen",
+              "displayName": "origen",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "destino",
+              "displayName": "destino",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_vuelo",
+              "displayName": "fecha_vuelo",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora_vuelo",
+              "displayName": "hora_vuelo",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "viaje_solo",
+              "displayName": "viaje_solo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_regreso",
+              "displayName": "fecha_regreso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha_creacion",
+              "displayName": "fecha_creacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "01dc7618-cb48-45b6-aae5-27148e43c20c",
+      "name": "PostgreSQL Insertar",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        2272
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "8pKuaXqXBnzxFNT3",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dLkwg_v8P2IBLVy7cKyi-8krZfyN-oruSPFdbog1IVs",
+          "mode": "list",
+          "cachedResultName": "Aeroreservas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dLkwg_v8P2IBLVy7cKyi-8krZfyN-oruSPFdbog1IVs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dLkwg_v8P2IBLVy7cKyi-8krZfyN-oruSPFdbog1IVs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Correo": "={{ $('Webhook').item.json.body.data.correo }}",
+            "Telefono": "={{ $('Webhook').item.json.body.data.telefono }}",
+            "Origen": "={{ $('Webhook').item.json.body.data.origen }}",
+            "Destino": "={{ $('Webhook').item.json.body.data.destino }}",
+            "Ticket": "={{ $json.id }}",
+            "Nombre ": "={{ $json.nombre }}",
+            "Fecha de vuelo": "={{ $json.fecha_vuelo }}",
+            "Hora de vuelo": "={{ $json.hora_vuelo }}",
+            "Hora de reserva": "={{ $json.fecha_creacion }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket",
+              "displayName": "Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre ",
+              "displayName": "Nombre ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo",
+              "displayName": "Correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Telefono",
+              "displayName": "Telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Origen",
+              "displayName": "Origen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Destino",
+              "displayName": "Destino",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fecha de vuelo",
+              "displayName": "Fecha de vuelo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora de vuelo",
+              "displayName": "Hora de vuelo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora de reserva",
+              "displayName": "Hora de reserva",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha regreso",
+              "displayName": "Fecha regreso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "53c1cfa7-48a4-418c-82fd-a1e1dd11651a",
+      "name": "Google Sheets Insertar",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        2144,
+        2128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WbbhOvYXWfZldJDh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.data.correo }}",
+        "subject": "=✈️ Confirmación de Reserva AeroReserva: {{ $('Webhook').item.json.body.data.id }}",
+        "message": "=Hola {{ $('Webhook').item.json.body.data.nombre }},<br><br>\n\nTu reserva de vuelo ha sido registrada exitosamente.<br><br>\n<b>Código Reserva:</b> {{ $('Webhook').item.json.body.data.id }}<br>\n<b>Ruta:</b> {{ $('Webhook').item.json.body.data.origen }} ➔ {{ $('Webhook').item.json.body.data.destino }}<br>\n<b>Fecha:</b> {{ $('Webhook').item.json.body.data.fechaVuelo }} a las {{ $('Webhook').item.json.body.data.horaVuelo }}<br><br>\n\n¡Gracias por viajar con AeroReserva!",
+        "options": {}
+      },
+      "id": "254da48b-44e5-48d9-b9a4-a930d430de0f",
+      "name": "Email Confirmación",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2352,
+        2128
+      ],
+      "webhookId": "76f89967-c237-48bc-be95-a3358f4e32df",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "V8ofurEpeCxoUCNN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b3e4638c-ee82-4b42-9f86-6a584a2794bf",
+              "name": "Ticket",
+              "value": "={{ $json.body.data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b4a4e7c0-d20e-4c76-8701-1993cade77a8",
+              "name": "nombre",
+              "value": "={{ $json.body.data.nombre.trim().toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "08731155-6e6d-473c-83b5-90861c4219d0",
+              "name": "correo",
+              "value": "={{ $json.body.data.correo }}",
+              "type": "string"
+            },
+            {
+              "id": "f5038ed4-c078-4312-875a-bbdff3e51dcd",
+              "name": "telefono",
+              "value": "={{ $json.body.data.telefono }}",
+              "type": "number"
+            },
+            {
+              "id": "cbfd7680-b081-43a1-8863-c57c3bc19e0c",
+              "name": "origen",
+              "value": "={{ $json.body.data.origen }}",
+              "type": "string"
+            },
+            {
+              "id": "afbba1a8-8f96-4ffc-8a6e-3158ebf94870",
+              "name": "destino",
+              "value": "={{ $json.body.data.destino }}",
+              "type": "string"
+            },
+            {
+              "id": "8646aad9-ee12-4a41-93db-0367ee7790fd",
+              "name": "fechaVuela",
+              "value": "={{ $json.body.data.fechaVuelo.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "ad3818f9-d49d-4680-a8be-ed0368b7f388",
+              "name": "estado",
+              "value": "={{ $json.body.data.estado }}",
+              "type": "string"
+            },
+            {
+              "id": "316d918c-7339-4b28-9a10-610c723d92e7",
+              "name": "fechaCreacion",
+              "value": "={{ $json.body.data.fechaCreacion }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1488,
+        2256
+      ],
+      "id": "046197fd-c4fd-4b2d-9b4e-620ceb345acf",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router por Acción": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Consultar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PostgreSQL Insertar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        []
+      ]
+    },
+    "PostgreSQL Insertar": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets Insertar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Insertar": {
+      "main": [
+        [
+          {
+            "node": "Email Confirmación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Router por Acción",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bd3dccc6f4d56a07a3e659f9d96f198e9dc181fbb36766d97e4cbe5a635edbe7"
+  }
+}
