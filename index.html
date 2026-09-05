@@ -28,10 +28,13 @@
         <a href="#mis-reservas" class="navbar__link">Mis Reservas</a>
         <a href="#footer" class="navbar__link">Contacto</a>
       </div>
-      <!-- Indicador de estado de conexión con n8n -->
-      <div class="navbar__status" id="navbar-status" aria-live="polite" title="Haz clic para cambiar la URL del Webhook de n8n" onclick="cambiarWebhookUrl()" style="cursor: pointer;">
-        <span class="status-dot status-dot--connecting" id="status-dot" aria-hidden="true"></span>
-        <span class="status-text" id="status-text">Conectando...</span>
+      <!-- Indicador de estado de conexión con n8n y Modo Demo -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="btn-toggle-demo" type="button" style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" title="Alternar entre conexión n8n y Modo Demostración Local">Modo Demo</button>
+        <div class="navbar__status" id="navbar-status" aria-live="polite" title="Haz clic para cambiar la URL del Webhook de n8n" onclick="cambiarWebhookUrl()" style="cursor: pointer;">
+          <span class="status-dot status-dot--connecting" id="status-dot" aria-hidden="true"></span>
+          <span class="status-text" id="status-text">Conectando...</span>
+        </div>
       </div>
     </nav>
     <div class="hero" role="main">

@@ -1,0 +1,13 @@
+# Logs y archivos temporales del sistema
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Variables y secretos de entorno
+.env
+.env.local
+
+# Editores y herramientas
+.vscode/
+.idea/

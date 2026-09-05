@@ -32,11 +32,88 @@ function getWebhookUrl() {
   return localStorage.getItem('aeroreserva_webhook_url') || WEBHOOK_DEFAULT;
 }
 
+/** Estado del Modo Demostración Local (para pruebas sin n8n activo) */
+let modoDemo = localStorage.getItem('aeroreserva_modo_demo') === 'true';
+
+const MOCK_RESERVAS_DEMO = [
+  {
+    id: 'res_demo_101',
+    nombre: 'Carlos Mendoza',
+    correo: 'carlos.mendoza@email.com',
+    telefono: '+57 300 123 4567',
+    origen: 'BOG',
+    destino: 'MIA',
+    fechaVuelo: '2026-10-15',
+    horaVuelo: '08:30',
+    clase: 'Ejecutiva',
+    asiento: '4A',
+    fechaRegreso: '2026-10-25'
+  },
+  {
+    id: 'res_demo_102',
+    nombre: 'Valentina Restrepo',
+    correo: 'v.restrepo@domain.co',
+    telefono: '+57 315 987 6543',
+    origen: 'MDE',
+    destino: 'MAD',
+    fechaVuelo: '2026-11-02',
+    horaVuelo: '18:45',
+    clase: 'Económica',
+    asiento: '18C',
+    fechaRegreso: null
+  }
+];
+
+function getReservasLocal() {
+  const data = localStorage.getItem('aeroreserva_local_reservas');
+  if (!data) {
+    localStorage.setItem('aeroreserva_local_reservas', JSON.stringify(MOCK_RESERVAS_DEMO));
+    return [...MOCK_RESERVAS_DEMO];
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return [...MOCK_RESERVAS_DEMO];
+  }
+}
+
+function saveReservasLocal(reservas) {
+  localStorage.setItem('aeroreserva_local_reservas', JSON.stringify(reservas));
+}
+
+function toggleModoDemo() {
+  modoDemo = !modoDemo;
+  localStorage.setItem('aeroreserva_modo_demo', modoDemo ? 'true' : 'false');
+  actualizarBotonDemo();
+  if (modoDemo) {
+    setEstadoConexion('demo');
+    mostrarToast('🚀', 'Modo Demostración Activado', 'Operando con almacenamiento local (LocalStorage).', 'info');
+  } else {
+    setEstadoConexion('connecting');
+    mostrarToast('🔄', 'Modo n8n Activado', 'Intentando conectar con el Webhook de n8n.', 'info');
+  }
+  mostrarReservas();
+}
+
+function actualizarBotonDemo() {
+  const btnDemo = document.getElementById('btn-toggle-demo');
+  if (!btnDemo) return;
+  if (modoDemo) {
+    btnDemo.textContent = '🟢 Modo Demo (Activo)';
+    btnDemo.style.background = 'rgba(46, 204, 113, 0.3)';
+    btnDemo.style.borderColor = 'rgba(46, 204, 113, 0.7)';
+  } else {
+    btnDemo.textContent = '⚪ Modo Demo (Inactivo)';
+    btnDemo.style.background = 'rgba(255, 255, 255, 0.15)';
+    btnDemo.style.borderColor = 'rgba(255, 255, 255, 0.35)';
+  }
+}
+
 /** Permite cambiar la URL del Webhook desde un prompt en pantalla */
 function cambiarWebhookUrl() {
   const urlActual = getWebhookUrl();
   const nuevaUrl = prompt(
-    '⚙️ Configuración del Webhook de n8n:\n\nIngresa la URL de tu Webhook (Production URL) obtenido de n8n:',
+    '⚙️ Configuración del Webhook de n8n:\n\nIngresa la URL de tu Webhook (Production/Test) de n8n:\n(Si dejas en blanco se usará la URL por defecto)',
     urlActual
   );
 
@@ -49,7 +126,8 @@ function cambiarWebhookUrl() {
       localStorage.removeItem('aeroreserva_webhook_url');
       mostrarToast('⚙️', 'Webhook reseteado', 'Se usará la URL por defecto.', 'info');
     }
-    mostrarReservas();
+    if (modoDemo) toggleModoDemo();
+    else mostrarReservas();
   }
 }
 
@@ -97,35 +175,61 @@ const btnCancelarElim     = document.getElementById('btn-cancelar-eliminar');
 const toastContainer      = document.getElementById('toast-container');
 
 // ──────────────────────────────────────────────
-// 4. CAPA DE COMUNICACIÓN CON N8N
+// 4. CAPA DE COMUNICACIÓN (N8N Y FALLBACK LOCAL)
 // ──────────────────────────────────────────────
 
 /**
- * Función centralizada para comunicarse con el Webhook de n8n.
- * Envía siempre un POST con body JSON que incluye el campo "action".
- *
+ * Función centralizada para comunicarse con n8n o ejecutar simulación local en Modo Demo.
  * @param {string} action  - 'GET_ALL' | 'CREATE' | 'UPDATE' | 'DELETE'
  * @param {Object} payload - Datos adicionales a enviar (opcional)
- * @returns {Promise<any>} - Respuesta JSON de n8n
- * @throws {Error} Si la red falla o n8n devuelve un error HTTP
+ * @returns {Promise<any>}
  */
 async function api(action, payload = {}) {
+  // Manejo directo en modo demostración local
+  if (modoDemo) {
+    let local = getReservasLocal();
+    if (action === 'GET_ALL') {
+      return local;
+    } else if (action === 'CREATE') {
+      const nueva = { id: generarId(), ...payload };
+      local.unshift(nueva);
+      saveReservasLocal(local);
+      return { success: true, reserva: nueva };
+    } else if (action === 'UPDATE') {
+      local = local.map(r => r.id === payload.id ? { ...r, ...payload } : r);
+      saveReservasLocal(local);
+      return { success: true, reserva: payload };
+    } else if (action === 'DELETE') {
+      local = local.filter(r => r.id !== payload.id);
+      saveReservasLocal(local);
+      return { success: true };
+    }
+  }
+
+  // Si no está en modo demo, ejecuta petición de red hacia n8n
   const body = { action, ...payload };
   const url = getWebhookUrl();
 
-  const respuesta = await fetch(url, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
-  });
+  try {
+    const respuesta = await fetch(url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
 
-  if (!respuesta.ok) {
-    throw new Error(`Error del servidor: ${respuesta.status} ${respuesta.statusText}`);
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status} ${respuesta.statusText}`);
+    }
+
+    const texto = await respuesta.text();
+    setEstadoConexion('online');
+    return texto ? JSON.parse(texto) : {};
+  } catch (error) {
+    // Si la conexión falla, se activa notificación y se sugiere modo demo
+    setEstadoConexion('offline');
+    console.warn('Fallo de conexión n8n. Puedes activar el Modo Demo para evaluar la interfaz localmente.', error);
+    throw error;
   }
-
-  // n8n puede devolver un JSON vacío en algunos casos
-  const texto = await respuesta.text();
-  return texto ? JSON.parse(texto) : {};
 }
 
 // ──────────────────────────────────────────────
@@ -134,15 +238,16 @@ async function api(action, payload = {}) {
 
 /**
  * Actualiza el indicador visual de conexión en la navbar.
- * @param {'connecting'|'online'|'offline'} estado
+ * @param {'connecting'|'online'|'offline'|'demo'} estado
  */
 function setEstadoConexion(estado) {
   if (!statusDot || !statusText) return;
 
   const config = {
-    connecting: { clase: 'connecting', texto: 'Conectando...' },
+    connecting: { clase: 'connecting', texto: 'Conectando a n8n...' },
     online:     { clase: 'online',     texto: 'Conectado a n8n' },
-    offline:    { clase: 'offline',    texto: 'Sin conexión a n8n' },
+    offline:    { clase: 'offline',    texto: 'Webhook n8n Offline' },
+    demo:       { clase: 'demo',       texto: 'Modo Demo (Local)' },
   };
 
   const c = config[estado] || config.offline;
@@ -182,7 +287,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape' && !modalConfirmacion.hidden) cerrarModal();
   });
 
-  // Cargar reservas desde n8n al iniciar
+  // Modo Demo botón
+  const btnDemo = document.getElementById('btn-toggle-demo');
+  if (btnDemo) {
+    btnDemo.addEventListener('click', toggleModoDemo);
+    actualizarBotonDemo();
+  }
+
+  // Cargar reservas al iniciar
+  if (modoDemo) {
+    setEstadoConexion('demo');
+  }
   mostrarReservas();
 });
 
